@@ -10,5 +10,13 @@ rand = "0.5.5"
 criterion = "0.1.2"
 
 [[bench]]
-name = "benchmarks"
+name = "insertion"
+harness = false
+
+[[bench]]
+name = "bubble"
+harness = false
+
+[[bench]]
+name = "merge"
 harness = false
