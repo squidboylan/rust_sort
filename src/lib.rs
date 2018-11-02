@@ -1,4 +1,10 @@
 extern crate rand;
+extern crate crossbeam;
+extern crate rayon;
+
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+
+const NUM_THREADS: usize = 8;
 
 pub fn insertion_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     let mut i = 1;
@@ -54,7 +60,7 @@ pub fn merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
     if vals.len() > 1 {
         let mut chunks = Vec::new();
         {
-            let mut tmp = vals.split_at(vals.len()/2);
+            let tmp = vals.split_at(vals.len()/2);
             chunks.push(tmp.0.to_vec());
             chunks.push(tmp.1.to_vec());
         }
@@ -63,7 +69,6 @@ pub fn merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
 
         merge(vals, &mut chunks);
     }
-
 }
 
 pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]) {
@@ -91,6 +96,27 @@ pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]
         y += 1;
         i += 1;
     }
+
+}
+
+
+pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T]) {
+    if vals.len() >= 2 {
+        let mut chunks: Vec<Vec<T>> = Vec::new();
+        {
+            let tmp = vals.chunks(vals.len()/NUM_THREADS + 1);
+            for i in tmp {
+                chunks.push(i.to_vec());
+            }
+        }
+
+        chunks.par_iter_mut().for_each(|e| {
+            merge_sort(e)
+        });
+
+        merge(vals, &mut chunks);
+    }
+
 }
 
 
