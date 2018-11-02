@@ -7,41 +7,41 @@ use sort::*;
 use criterion::Criterion;
 use rand::Rng;
 
-fn bubble_sort_1k(c: &mut Criterion) {
+fn selection_sort_1k(c: &mut Criterion) {
     c.sample_size(10);
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<u64> = (0..1_000).map(|_| {
         rng.gen_range(0, 1_000)
     }).collect();
-    c.bench_function("bubble sort 1k", |b| b.iter(|| insertion_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 1k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
 }
 
-fn bubble_sort_10k(c: &mut Criterion) {
+fn selection_sort_10k(c: &mut Criterion) {
     c.sample_size(10);
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<u64> = (0..10_000).map(|_| {
         rng.gen_range(0, 10_000)
     }).collect();
-    c.bench_function("bubble sort 10k", |b| b.iter(|| insertion_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 10k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
 }
 
-fn bubble_sort_100k(c: &mut Criterion) {
+fn selection_sort_100k(c: &mut Criterion) {
     c.sample_size(10);
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<u64> = (0..100_000).map(|_| {
         rng.gen_range(0, 100_000)
     }).collect();
-    c.bench_function("bubble sort 100k", |b| b.iter(|| insertion_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 100k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
 }
 
-fn bubble_sort_1m(c: &mut Criterion) {
+fn selection_sort_1m(c: &mut Criterion) {
     c.sample_size(10);
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<u64> = (0..1_000_000).map(|_| {
         rng.gen_range(0, 1_000_000)
     }).collect();
-    c.bench_function("bubble sort 1M", |b| b.iter(|| insertion_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 1M", |b| b.iter(|| selection_sort(&mut numbers.clone())));
 }
 
-criterion_group!(benches, bubble_sort_1k, bubble_sort_10k, bubble_sort_100k);
+criterion_group!(benches, selection_sort_1k, selection_sort_10k, selection_sort_100k);
 criterion_main!(benches);
