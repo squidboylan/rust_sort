@@ -100,23 +100,26 @@ pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]
 }
 
 
-pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T]) {
-    if vals.len() >= 2 {
-        let mut chunks: Vec<Vec<T>> = Vec::new();
-        {
-            let tmp = vals.chunks(vals.len()/NUM_THREADS + 1);
-            for i in tmp {
-                chunks.push(i.to_vec());
-            }
-        }
+pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T], depth: usize) {
+    if vals.len() == 1 {
+        return;
+    }
+    let mut chunks = Vec::new();
+    {
+        let tmp = vals.split_at(vals.len()/2);
+        chunks.push(tmp.0.to_vec());
+        chunks.push(tmp.1.to_vec());
+    }
+    if depth > 0 {
 
         chunks.par_iter_mut().for_each(|e| {
-            merge_sort(e)
+            merge_sort_multithreaded(e, depth - 1)
         });
-
-        merge(vals, &mut chunks);
+    } else {
+        merge_sort(&mut chunks[0]);
+        merge_sort(&mut chunks[1]);
     }
-
+    merge(vals, &mut chunks);
 }
 
 
@@ -145,6 +148,17 @@ mod tests {
 
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort(&mut vals);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+    }
+
+    #[test]
+    fn merge_sort_multithreaded_test() {
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
+        merge_sort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3];
+        merge_sort_multithreaded(&mut vals, 3);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
     }
 
