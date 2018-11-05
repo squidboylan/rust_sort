@@ -34,3 +34,11 @@ harness = false
 [[bench]]
 name = "merge_threaded"
 harness = false
+
+[[bench]]
+name = "rust_stable"
+harness = false
+
+[[bench]]
+name = "rust_unstable"
+harness = false
