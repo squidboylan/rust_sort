@@ -71,6 +71,25 @@ pub fn merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
     }
 }
 
+pub fn optimized_merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
+    if vals.len() > 1 {
+        if vals.len() <= 20 {
+            insertion_sort(vals);
+            return;
+        }
+        let mut chunks = Vec::new();
+        {
+            let tmp = vals.split_at(vals.len()/2);
+            chunks.push(tmp.0.to_vec());
+            chunks.push(tmp.1.to_vec());
+        }
+        merge_sort(&mut chunks[0]);
+        merge_sort(&mut chunks[1]);
+
+        merge(vals, &mut chunks);
+    }
+}
+
 pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]) {
     let mut x = 0;
     let mut y = 0;
@@ -123,6 +142,33 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut 
 }
 
 
+pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T], depth: usize) {
+    if vals.len() == 1 {
+        return;
+    }
+    if vals.len() <= 20 {
+        insertion_sort(vals);
+        return;
+    }
+    let mut chunks = Vec::new();
+    {
+        let tmp = vals.split_at(vals.len()/2);
+        chunks.push(tmp.0.to_vec());
+        chunks.push(tmp.1.to_vec());
+    }
+    if depth > 0 {
+
+        chunks.par_iter_mut().for_each(|e| {
+            optimized_merge_sort_multithreaded(e, depth - 1)
+        });
+    } else {
+        optimized_merge_sort(&mut chunks[0]);
+        optimized_merge_sort(&mut chunks[1]);
+    }
+    merge(vals, &mut chunks);
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,6 +205,17 @@ mod tests {
 
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+    }
+
+    #[test]
+    fn optimized_merge_sort_multithreaded_test() {
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
+        optimized_merge_sort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3];
+        optimized_merge_sort_multithreaded(&mut vals, 3);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
     }
 

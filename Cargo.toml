@@ -32,6 +32,14 @@ name = "merge"
 harness = false
 
 [[bench]]
+name = "optimized_merge_threaded"
+harness = false
+
+[[bench]]
+name = "optimized_merge"
+harness = false
+
+[[bench]]
 name = "merge_threaded"
 harness = false
 
