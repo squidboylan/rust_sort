@@ -8,31 +8,32 @@ use criterion::Criterion;
 use rand::Rng;
 
 fn selection_sort_1k(c: &mut Criterion) {
-    c.sample_size(10);
     let mut rng = rand::thread_rng();
     let numbers: Vec<u64> = (0..1_000).map(|_| {
         rng.gen_range(0, 1_000)
     }).collect();
-    c.bench_function("selection sort 1k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 1k", move |b| { b.iter_with_setup(|| numbers.clone(), move |mut vals: Vec<u64>| selection_sort(&mut vals)); } );
 }
 
 fn selection_sort_10k(c: &mut Criterion) {
-    c.sample_size(10);
     let mut rng = rand::thread_rng();
     let numbers: Vec<u64> = (0..10_000).map(|_| {
         rng.gen_range(0, 10_000)
     }).collect();
-    c.bench_function("selection sort 10k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 10k", move |b| { b.iter_with_setup(|| numbers.clone(), move |mut vals: Vec<u64>| selection_sort(&mut vals)); } );
 }
 
 fn selection_sort_100k(c: &mut Criterion) {
-    c.sample_size(10);
     let mut rng = rand::thread_rng();
     let numbers: Vec<u64> = (0..100_000).map(|_| {
         rng.gen_range(0, 100_000)
     }).collect();
-    c.bench_function("selection sort 100k", |b| b.iter(|| selection_sort(&mut numbers.clone())));
+    c.bench_function("selection sort 100k", move |b| { b.iter_with_setup(|| numbers.clone(), move |mut vals: Vec<u64>| selection_sort(&mut vals)); } );
 }
 
-criterion_group!(benches, selection_sort_1k, selection_sort_10k, selection_sort_100k);
+criterion_group!{
+    name = benches;
+    config = Criterion::default().sample_size(10);
+    targets = selection_sort_1k, selection_sort_10k, selection_sort_100k
+}
 criterion_main!(benches);
