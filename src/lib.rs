@@ -4,9 +4,7 @@ extern crate rayon;
 
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
-const NUM_THREADS: usize = 8;
-
-pub fn insertion_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
+pub fn insertion_sort<T: PartialOrd>(vals: &mut [T]) {
     let mut i = 1;
     while i < vals.len() {
         let mut j = i;
@@ -19,7 +17,7 @@ pub fn insertion_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
 }
 
 
-pub fn selection_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
+pub fn selection_sort<T: PartialOrd>(vals: &mut [T]) {
     let mut curr = vals.len() - 1;
     while curr > 0 {
         let mut i = curr;
@@ -36,7 +34,7 @@ pub fn selection_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
 }
 
 
-pub fn bubble_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
+pub fn bubble_sort<T: PartialOrd>(vals: &mut [T]) {
     let mut end = vals.len() - 1;
     loop {
         let mut swapped = false;
@@ -56,7 +54,7 @@ pub fn bubble_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     }
 }
 
-pub fn merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
+pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
         let mut chunks = Vec::new();
         {
@@ -71,7 +69,7 @@ pub fn merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
     }
 }
 
-pub fn optimized_merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
+pub fn optimized_merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
         if vals.len() <= 20 {
             insertion_sort(vals);
@@ -90,7 +88,7 @@ pub fn optimized_merge_sort<T: PartialOrd + Copy + Clone>(vals: &mut [T]) {
     }
 }
 
-pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]) {
+pub fn merge<T: PartialOrd + Copy>(vals: &mut [T], chunks: &mut [Vec<T>]) {
     let mut x = 0;
     let mut y = 0;
     let mut i = 0;
@@ -119,7 +117,7 @@ pub fn merge<T: PartialOrd + Copy + Clone>(vals: &mut [T], chunks: &mut [Vec<T>]
 }
 
 
-pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T], depth: usize) {
+pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
     if vals.len() == 1 {
         return;
     }
@@ -142,7 +140,7 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut 
 }
 
 
-pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Clone + Send>(vals: &mut [T], depth: usize) {
+pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
     if vals.len() == 1 {
         return;
     }

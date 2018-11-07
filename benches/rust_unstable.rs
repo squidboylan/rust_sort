@@ -3,7 +3,6 @@ extern crate sort;
 extern crate criterion;
 extern crate rand;
 
-use sort::*;
 use criterion::Criterion;
 use rand::Rng;
 
