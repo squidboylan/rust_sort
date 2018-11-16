@@ -2,6 +2,7 @@
 name = "sort"
 version = "0.1.0"
 authors = ["Caleb Boylan <calebboylan@gmail.com>"]
+autobenches = false
 
 [dependencies]
 rand = "0.5.5"
@@ -15,9 +16,9 @@ criterion = "0.1.2"
 name = "insertion"
 harness = false
 
-[[bench]]
-name = "insertion_worst_case"
-harness = false
+#[[bench]]
+#name = "insertion_worst_case"
+#harness = false
 
 [[bench]]
 name = "selection"
@@ -31,13 +32,13 @@ harness = false
 name = "merge"
 harness = false
 
-[[bench]]
-name = "optimized_merge_threaded"
-harness = false
+#[[bench]]
+#name = "optimized_merge_threaded"
+#harness = false
 
-[[bench]]
-name = "optimized_merge"
-harness = false
+#[[bench]]
+#name = "optimized_merge"
+#harness = false
 
 [[bench]]
 name = "merge_threaded"

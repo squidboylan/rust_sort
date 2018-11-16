@@ -54,6 +54,35 @@ pub fn bubble_sort<T: PartialOrd>(vals: &mut [T]) {
     }
 }
 
+// basic Hoare partition without optimization
+pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
+    let pivot = vals[0];
+    let mut i = 0;
+    let mut j = vals.len() - 1;
+    loop {
+        while vals[i] < pivot {
+            i += 1;
+        }
+        while vals[j] > pivot {
+            j -= 1;
+        }
+
+        if i >= j {
+            return j;
+        }
+        vals.swap(i, j);
+    }
+}
+
+pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
+    if vals.len() > 1 {
+        let pivot = partition(vals);
+        let tmp = vals.split_at_mut(pivot + 1);
+        quicksort(tmp.0.split_last_mut().unwrap().1);
+        quicksort(tmp.1);
+    }
+}
+
 pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
         let mut chunks = Vec::new();
@@ -222,5 +251,16 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
         selection_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+    }
+
+    #[test]
+    fn quicksort_test() {
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
+        quicksort(&mut vals);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3];
+        quicksort(&mut vals);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
     }
 }
