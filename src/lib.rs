@@ -77,9 +77,9 @@ pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
 pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
         let pivot = partition(vals);
-        let tmp = vals.split_at_mut(pivot + 1);
-        quicksort(tmp.0.split_last_mut().unwrap().1);
-        quicksort(tmp.1);
+        let tmp = vals.split_at_mut(pivot);
+        quicksort(tmp.0);
+        quicksort(tmp.1.split_at_mut(1).1);
     }
 }
 
