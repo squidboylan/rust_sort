@@ -1,8 +1,5 @@
 extern crate rand;
 extern crate crossbeam;
-extern crate rayon;
-
-use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 pub fn insertion_sort<T: PartialOrd>(vals: &mut [T]) {
     let mut i = 1;
@@ -157,9 +154,12 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], dep
         chunks.push(tmp.1.to_vec());
     }
     if depth > 0 {
-
-        chunks.par_iter_mut().for_each(|e| {
-            merge_sort_multithreaded(e, depth - 1)
+        crossbeam::scope(|scope| {
+            for i in &mut chunks {
+                scope.spawn(move || {
+                    merge_sort_multithreaded(i, depth - 1);
+                });
+            }
         });
     } else {
         merge_sort(&mut chunks[0]);
@@ -184,9 +184,12 @@ pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mu
         chunks.push(tmp.1.to_vec());
     }
     if depth > 0 {
-
-        chunks.par_iter_mut().for_each(|e| {
-            optimized_merge_sort_multithreaded(e, depth - 1)
+        crossbeam::scope(|scope| {
+            for i in &mut chunks {
+                scope.spawn(move || {
+                    optimized_merge_sort_multithreaded(i, depth - 1);
+                });
+            }
         });
     } else {
         optimized_merge_sort(&mut chunks[0]);
