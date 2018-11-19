@@ -15,6 +15,9 @@ pub fn insertion_sort<T: PartialOrd>(vals: &mut [T]) {
 
 
 pub fn selection_sort<T: PartialOrd>(vals: &mut [T]) {
+    if vals.len() == 0 {
+        return;
+    }
     let mut curr = vals.len() - 1;
     while curr > 0 {
         let mut i = curr;
@@ -32,6 +35,9 @@ pub fn selection_sort<T: PartialOrd>(vals: &mut [T]) {
 
 
 pub fn bubble_sort<T: PartialOrd>(vals: &mut [T]) {
+    if vals.len() == 0 {
+        return;
+    }
     let mut end = vals.len() - 1;
     loop {
         let mut swapped = false;
@@ -208,12 +214,45 @@ pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mu
 
 #[cfg(test)]
 mod tests {
+
+    use rand::Rng;
     use super::*;
+
+    fn test_function(f: fn(&mut [u64])) {
+        let mut rng = rand::thread_rng();
+        for i in 0..1024 {
+            let mut numbers: Vec<u64> = (0..i).map(|_| {
+                rng.gen_range(0, i)
+            }).collect();
+            let mut sorted = numbers.clone();
+            sorted.sort_unstable();
+            f(numbers.as_mut_slice());
+            assert_eq!(numbers, sorted);
+        }
+    }
+
+    fn test_function_mt(f: fn(&mut [u64], usize)) {
+        let mut rng = rand::thread_rng();
+        for i in 0..1024 {
+            for depth in 0..3 {
+                let mut numbers: Vec<u64> = (0..i).map(|_| {
+                    rng.gen_range(0, i)
+                }).collect();
+                let mut sorted = numbers.clone();
+                sorted.sort_unstable();
+
+                f(numbers.as_mut_slice(), depth);
+                assert_eq!(numbers, sorted);
+            }
+        }
+    }
+
     #[test]
     fn insertion_sort_test() {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         insertion_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+        test_function(insertion_sort);
     }
 
     #[test]
@@ -221,6 +260,7 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         bubble_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+        test_function(bubble_sort);
     }
 
     #[test]
@@ -232,6 +272,7 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+        test_function(merge_sort);
     }
 
     #[test]
@@ -243,6 +284,7 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort_multithreaded(&mut vals, 3);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+        test_function_mt(merge_sort_multithreaded);
     }
 
     #[test]
@@ -254,6 +296,7 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         optimized_merge_sort_multithreaded(&mut vals, 3);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+        test_function_mt(optimized_merge_sort_multithreaded);
     }
 
     #[test]
@@ -261,6 +304,7 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
         selection_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+        test_function(selection_sort);
     }
 
     #[test]
@@ -282,5 +326,6 @@ mod tests {
         sorted.sort();
         quicksort(&mut vals);
         assert_eq!(vals, sorted);
+        test_function(quicksort);
     }
 }
