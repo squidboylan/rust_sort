@@ -28,6 +28,10 @@ name = "bubble"
 harness = false
 
 [[bench]]
+name = "quick"
+harness = false
+
+[[bench]]
 name = "merge"
 harness = false
 

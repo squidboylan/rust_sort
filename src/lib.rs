@@ -54,21 +54,28 @@ pub fn bubble_sort<T: PartialOrd>(vals: &mut [T]) {
 // basic Hoare partition without optimization
 pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
     let pivot = vals[0];
-    let mut i = 0;
+    let mut i = 1;
     let mut j = vals.len() - 1;
     loop {
-        while vals[i] < pivot {
+        while i < vals.len() && vals[i] < pivot {
             i += 1;
         }
-        while vals[j] > pivot {
+        while vals[j] >= pivot {
+            if j == 0 {
+                break;
+            }
             j -= 1;
         }
 
         if i >= j {
-            return j;
+            break;
         }
         vals.swap(i, j);
+        i += 1;
+        j -= 1;
     }
+    vals.swap(0, j);
+    j
 }
 
 pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
@@ -265,5 +272,15 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         quicksort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8, 9, 10];
+        quicksort(&mut vals);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+        let mut vals = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
+        let mut sorted = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
+        sorted.sort();
+        quicksort(&mut vals);
+        assert_eq!(vals, sorted);
     }
 }
