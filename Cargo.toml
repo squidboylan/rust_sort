@@ -11,10 +11,6 @@ crossbeam = "0.4.1"
 [dev-dependencies]
 criterion = "0.2.5"
 
-[[bin]]
-name = "mybin"
-path = "bin/main.rs"
-
 [[bench]]
 name = "insertion"
 harness = false
@@ -36,15 +32,7 @@ name = "quick"
 harness = false
 
 [[bench]]
-name = "quick_opt"
-harness = false
-
-[[bench]]
 name = "quick_worst_case"
-harness = false
-
-[[bench]]
-name = "quick_opt_worst_case"
 harness = false
 
 [[bench]]

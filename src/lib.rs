@@ -85,55 +85,7 @@ pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
     vals.swap(0, j);
     j
 }
-
-// Optimized Hoare partition that takes the median of 3 values to find a
-// non-worst case pivot
-pub fn partition_opt<T: PartialOrd + Copy + Debug>(vals: &mut [T]) -> usize {
-    let mut pivot: T = vals[0];
-    if vals.len() > 2 {
-        let v1 = vals[0];
-        let v2 = vals[vals.len()/2];
-        let v3 = vals[vals.len() - 1];
-        //println!("v1 {:?}, v2: {:?}, v3: {:?}", v1, v2, v3);
-        if (v1 <= v2 && v2 <= v3) || (v3 <= v2 && v2 <= v1) {
-            pivot = v2;
-            let pivot_index = vals.len()/2;
-            vals.swap(0, pivot_index);
-        } else if (v1 <= v3 && v3 <= v2) || (v2 <= v3 && v3 <= v1) {
-            pivot = v3;
-            let pivot_index = vals.len() - 1;
-            vals.swap(0, pivot_index);
-        } else {
-            pivot = v1;
-        }
-    }
-    let mut i = 1;
-    let mut j = vals.len() - 1;
-    loop {
-        while i < vals.len() && vals[i] < pivot {
-            i += 1;
-        }
-        while vals[j] >= pivot {
-            if j == 0 {
-                break;
-            }
-            j -= 1;
-        }
-
-        if i >= j {
-            break;
-        }
-        vals.swap(i, j);
-        i += 1;
-        j -= 1;
-    }
-    vals.swap(0, j);
-    //println!("len: {:?}, Pivot: {:?}, index: {:?}", vals.len(), pivot, j);
-
-    j
-}
-
-
+//
 // Quicksort that uses basic Hoare partitioning
 pub fn quicksort<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
     if vals.len() > 1 {
@@ -144,39 +96,8 @@ pub fn quicksort<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
     }
 }
 
-
-// Quicksort that uses optimized Hoare partitioning
-pub fn quicksort_opt<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
-    if vals.len() <= 1 {
-        return;
-    }
-    let pivot = partition_opt(vals);
-    let tmp = vals.split_at_mut(pivot);
-    quicksort_opt(tmp.0);
-    quicksort_opt(tmp.1.split_at_mut(1).1);
-}
-
 pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
-        let mut chunks = Vec::new();
-        {
-            let tmp = vals.split_at(vals.len()/2);
-            chunks.push(tmp.0.to_vec());
-            chunks.push(tmp.1.to_vec());
-        }
-        merge_sort(&mut chunks[0]);
-        merge_sort(&mut chunks[1]);
-
-        merge(vals, &mut chunks);
-    }
-}
-
-pub fn optimized_merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
-    if vals.len() > 1 {
-        if vals.len() <= 20 {
-            insertion_sort(vals);
-            return;
-        }
         let mut chunks = Vec::new();
         {
             let tmp = vals.split_at(vals.len()/2);
@@ -243,37 +164,6 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], dep
     }
     merge(vals, &mut chunks);
 }
-
-
-pub fn optimized_merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
-    if vals.len() == 1 {
-        return;
-    }
-    if vals.len() <= 20 {
-        insertion_sort(vals);
-        return;
-    }
-    let mut chunks = Vec::new();
-    {
-        let tmp = vals.split_at(vals.len()/2);
-        chunks.push(tmp.0.to_vec());
-        chunks.push(tmp.1.to_vec());
-    }
-    if depth > 0 {
-        crossbeam::scope(|scope| {
-            for i in &mut chunks {
-                scope.spawn(move || {
-                    optimized_merge_sort_multithreaded(i, depth - 1);
-                });
-            }
-        });
-    } else {
-        optimized_merge_sort(&mut chunks[0]);
-        optimized_merge_sort(&mut chunks[1]);
-    }
-    merge(vals, &mut chunks);
-}
-
 
 #[cfg(test)]
 mod tests {
@@ -351,18 +241,6 @@ mod tests {
     }
 
     #[test]
-    fn optimized_merge_sort_multithreaded_test() {
-        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
-        optimized_merge_sort_multithreaded(&mut vals, 3);
-        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
-
-        let mut vals = [1, 5, 4, 6, 7, 2, 3];
-        optimized_merge_sort_multithreaded(&mut vals, 3);
-        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-        test_function_mt(optimized_merge_sort_multithreaded);
-    }
-
-    #[test]
     fn selection_sort_test() {
         let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
         selection_sort(&mut vals);
@@ -390,27 +268,5 @@ mod tests {
         quicksort(&mut vals);
         assert_eq!(vals, sorted);
         test_function(quicksort);
-    }
-
-    #[test]
-    fn quicksort_opt_test() {
-        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
-        quicksort_opt(&mut vals);
-        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
-
-        let mut vals = [1, 5, 4, 6, 7, 2, 3];
-        quicksort_opt(&mut vals);
-        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-
-        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8, 9, 10];
-        quicksort_opt(&mut vals);
-        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-
-        let mut vals = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
-        let mut sorted = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
-        sorted.sort();
-        quicksort_opt(&mut vals);
-        assert_eq!(vals, sorted);
-        test_function(quicksort_opt);
     }
 }
