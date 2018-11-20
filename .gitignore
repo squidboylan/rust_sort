@@ -2,3 +2,7 @@
 **/*.rs.bk
 Cargo.lock
 .criterion
+report.*
+!report.tex
+!report.pdf
+_minted-report/
