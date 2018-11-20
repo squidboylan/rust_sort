@@ -7,6 +7,22 @@ use sort::*;
 use criterion::Criterion;
 use rand::Rng;
 
+fn bubble_sort_10(c: &mut Criterion) {
+    let mut rng = rand::thread_rng();
+    let numbers: Vec<u64> = (0..10).map(|_| {
+        rng.gen_range(0, 10)
+    }).collect();
+    c.bench_function("bubble sort 10", move |b| { b.iter_with_setup(|| numbers.clone(), move |mut vals: Vec<u64>| bubble_sort(&mut vals)); } );
+}
+
+fn bubble_sort_100(c: &mut Criterion) {
+    let mut rng = rand::thread_rng();
+    let numbers: Vec<u64> = (0..100).map(|_| {
+        rng.gen_range(0, 100)
+    }).collect();
+    c.bench_function("bubble sort 100", move |b| { b.iter_with_setup(|| numbers.clone(), move |mut vals: Vec<u64>| bubble_sort(&mut vals)); } );
+}
+
 fn bubble_sort_1k(c: &mut Criterion) {
     let mut rng = rand::thread_rng();
     let numbers: Vec<u64> = (0..1_000).map(|_| {
@@ -34,6 +50,6 @@ fn bubble_sort_100k(c: &mut Criterion) {
 criterion_group!{
     name = benches;
     config = Criterion::default().sample_size(10);
-    targets = bubble_sort_1k, bubble_sort_10k, bubble_sort_100k
+    targets = bubble_sort_10, bubble_sort_100, bubble_sort_1k, bubble_sort_10k, bubble_sort_100k
 }
 criterion_main!(benches);

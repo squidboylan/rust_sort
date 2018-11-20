@@ -51,16 +51,16 @@ harness = false
 name = "merge"
 harness = false
 
-#[[bench]]
-#name = "optimized_merge_threaded"
-#harness = false
-
-#[[bench]]
-#name = "optimized_merge"
-#harness = false
+[[bench]]
+name = "merge_2T"
+harness = false
 
 [[bench]]
-name = "merge_threaded"
+name = "merge_4T"
+harness = false
+
+[[bench]]
+name = "merge_8T"
 harness = false
 
 [[bench]]
