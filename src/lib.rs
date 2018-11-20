@@ -85,54 +85,58 @@ pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
     vals.swap(0, j);
     j
 }
-//
+
 // Quicksort that uses basic Hoare partitioning
 pub fn quicksort<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
     if vals.len() > 1 {
         let pivot = partition(vals);
+        // Split vals into two arrays, left contains [0, pivot), the contains (pivot, len)
         let tmp = vals.split_at_mut(pivot);
-        quicksort(tmp.0);
-        quicksort(tmp.1.split_at_mut(1).1);
+        let left = tmp.0;
+        let right = tmp.1.split_at_mut(1).1;
+        quicksort(left);
+        quicksort(right);
     }
 }
 
 pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
-        let mut chunks = Vec::new();
+        let mut left;
+        let mut right;
         {
             let tmp = vals.split_at(vals.len()/2);
-            chunks.push(tmp.0.to_vec());
-            chunks.push(tmp.1.to_vec());
+            left = tmp.0.to_vec();
+            right = tmp.1.to_vec();
         }
-        merge_sort(&mut chunks[0]);
-        merge_sort(&mut chunks[1]);
+        merge_sort(&mut left);
+        merge_sort(&mut right);
 
-        merge(vals, &mut chunks);
+        merge(vals, &mut left, &mut right);
     }
 }
 
-pub fn merge<T: PartialOrd + Copy>(vals: &mut [T], chunks: &mut [Vec<T>]) {
+pub fn merge<T: PartialOrd + Copy>(vals: &mut [T], left: &mut [T], right: &mut [T]) {
     let mut x = 0;
     let mut y = 0;
     let mut i = 0;
-    while x < chunks[0].len() && y < chunks[1].len() {
-        if chunks[0][x] <= chunks[1][y] {
-            vals[i] = chunks[0][x];
+    while x < left.len() && y < right.len() {
+        if left[x] <= right[y] {
+            vals[i] = left[x];
             x += 1;
             i += 1;
-        } else if chunks[0][x] > chunks[1][y] {
-            vals[i] = chunks[1][y];
+        } else if left[x] > right[y] {
+            vals[i] = right[y];
             y += 1;
             i += 1;
         }
     }
-    while x < chunks[0].len() {
-        vals[i] = chunks[0][x];
+    while x < left.len() {
+        vals[i] = left[x];
         x += 1;
         i += 1;
     }
-    while y < chunks[1].len() {
-        vals[i] = chunks[1][y];
+    while y < right.len() {
+        vals[i] = right[y];
         y += 1;
         i += 1;
     }
@@ -144,25 +148,31 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], dep
     if vals.len() == 1 {
         return;
     }
-    let mut chunks = Vec::new();
+    // copy each half of our vector into new vectors to be merge sorted
+    let mut left;
+    let mut right;
     {
         let tmp = vals.split_at(vals.len()/2);
-        chunks.push(tmp.0.to_vec());
-        chunks.push(tmp.1.to_vec());
+        left = tmp.0.to_vec();
+        right = tmp.1.to_vec();
     }
+    // If depth > 0 we need to spawn new threads in this call
     if depth > 0 {
+        // We need crossbeam scoped threads here to appease the lifetime checker gods
+        // This spawns 1 thread to sort each half of the array and waits for them to finish
         crossbeam::scope(|scope| {
-            for i in &mut chunks {
-                scope.spawn(move || {
-                    merge_sort_multithreaded(i, depth - 1);
-                });
-            }
+            scope.spawn(|| {
+                merge_sort_multithreaded(&mut left, depth - 1);
+            });
+            scope.spawn(|| {
+                merge_sort_multithreaded(&mut right, depth - 1);
+            });
         });
     } else {
-        merge_sort(&mut chunks[0]);
-        merge_sort(&mut chunks[1]);
+        merge_sort(&mut left);
+        merge_sort(&mut right);
     }
-    merge(vals, &mut chunks);
+    merge(vals, &mut left, &mut right);
 }
 
 #[cfg(test)]
@@ -171,6 +181,7 @@ mod tests {
     use rand::Rng;
     use super::*;
 
+    // Test a sorting function that takes an array as an argument
     fn test_function(f: fn(&mut [u64])) {
         let mut rng = rand::thread_rng();
         for i in 0..1024 {
@@ -184,6 +195,8 @@ mod tests {
         }
     }
 
+    // Test a sorting function that takes an array and depth of multithreading
+    // as arguments
     fn test_function_mt(f: fn(&mut [u64], usize)) {
         let mut rng = rand::thread_rng();
         for i in 0..1024 {
