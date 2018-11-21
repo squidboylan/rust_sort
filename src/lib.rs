@@ -2,6 +2,20 @@ extern crate rand;
 extern crate crossbeam;
 
 use std::fmt::Debug;
+use rand::Rng;
+
+pub fn rand_vec_u64(size: u64) -> Vec<u64> {
+    let mut rng = rand::thread_rng();
+    (0..size).map(|_| { rng.gen_range(0, size) }).collect()
+}
+
+pub fn reverse_sorted_vec_u64(size: u64) -> Vec<u64> {
+    (0..size).map(|i| { size - i }).collect()
+}
+
+pub fn sorted_vec_u64(size: u64) -> Vec<u64> {
+    (0..size).map(|i| { i }).collect()
+}
 
 pub fn insertion_sort<T: PartialOrd>(vals: &mut [T]) {
     let mut i = 1;
@@ -178,16 +192,12 @@ pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], dep
 #[cfg(test)]
 mod tests {
 
-    use rand::Rng;
     use super::*;
 
     // Test a sorting function that takes an array as an argument
     fn test_function(f: fn(&mut [u64])) {
-        let mut rng = rand::thread_rng();
         for i in 0..1024 {
-            let mut numbers: Vec<u64> = (0..i).map(|_| {
-                rng.gen_range(0, i)
-            }).collect();
+            let mut numbers = rand_vec_u64(i);
             let mut sorted = numbers.clone();
             sorted.sort_unstable();
             f(numbers.as_mut_slice());
@@ -198,12 +208,9 @@ mod tests {
     // Test a sorting function that takes an array and depth of multithreading
     // as arguments
     fn test_function_mt(f: fn(&mut [u64], usize)) {
-        let mut rng = rand::thread_rng();
         for i in 0..1024 {
             for depth in 0..3 {
-                let mut numbers: Vec<u64> = (0..i).map(|_| {
-                    rng.gen_range(0, i)
-                }).collect();
+                let mut numbers = rand_vec_u64(i);
                 let mut sorted = numbers.clone();
                 sorted.sort_unstable();
 
