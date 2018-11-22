@@ -1,7 +1,6 @@
 extern crate rand;
 extern crate crossbeam;
 
-use std::fmt::Debug;
 use rand::Rng;
 
 pub fn rand_vec_u64(size: u64) -> Vec<u64> {
@@ -101,7 +100,7 @@ pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
 }
 
 // Quicksort that uses basic Hoare partitioning
-pub fn quicksort<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
+pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
     if vals.len() > 1 {
         let pivot = partition(vals);
         // Split vals into two arrays, left contains [0, pivot), the contains (pivot, len)
@@ -110,6 +109,32 @@ pub fn quicksort<T: PartialOrd + Copy + Debug>(vals: &mut [T]) {
         let right = tmp.1.split_at_mut(1).1;
         quicksort(left);
         quicksort(right);
+    }
+}
+
+// Multithreaded quicksort that uses basic Hoare partitioning
+pub fn quicksort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
+    if vals.len() > 1 {
+        let pivot = partition(vals);
+        // Split vals into two arrays, left contains [0, pivot), the contains (pivot, len)
+        let tmp = vals.split_at_mut(pivot);
+        let left = tmp.0;
+        let right = tmp.1.split_at_mut(1).1;
+        if depth > 1 {
+            // We need crossbeam scoped threads here to appease the lifetime checker gods
+            // This spawns 1 thread to sort each half of the array and waits for them to finish
+            crossbeam::scope(|scope| {
+                scope.spawn(|| {
+                    quicksort_multithreaded(left, depth - 1);
+                });
+                scope.spawn(|| {
+                    quicksort_multithreaded(right, depth - 1);
+                });
+            });
+        } else {
+            quicksort(left);
+            quicksort(right);
+        }
     }
 }
 
@@ -288,5 +313,27 @@ mod tests {
         quicksort(&mut vals);
         assert_eq!(vals, sorted);
         test_function(quicksort);
+    }
+
+    #[test]
+    fn quicksort_multithreaded_test() {
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
+        quicksort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3];
+        quicksort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
+
+        let mut vals = [1, 5, 4, 6, 7, 2, 3, 8, 9, 10];
+        quicksort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+        let mut vals = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
+        let mut sorted = [7, 8, 9, 1, 1, 5, 9, 2, 6, 5];
+        sorted.sort();
+        quicksort_multithreaded(&mut vals, 3);
+        assert_eq!(vals, sorted);
+        test_function_mt(quicksort_multithreaded);
     }
 }
