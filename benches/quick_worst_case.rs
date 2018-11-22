@@ -7,7 +7,7 @@ use criterion::Criterion;
 
 // Generate a reverse sorted vec of items 0 to size-1
 fn generate_vec(size: u64) -> Vec<u64> {
-    (0..size).collect()
+    (0..size).rev().collect()
 }
 
 fn quicksort_worst_case_10(c: &mut Criterion) {
