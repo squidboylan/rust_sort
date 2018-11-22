@@ -3,15 +3,18 @@ extern crate crossbeam;
 
 use rand::Rng;
 
+#[inline(always)]
 pub fn rand_vec_u64(size: u64) -> Vec<u64> {
     let mut rng = rand::thread_rng();
     (0..size).map(|_| { rng.gen_range(0, size) }).collect()
 }
 
+#[inline(always)]
 pub fn reverse_sorted_vec_u64(size: u64) -> Vec<u64> {
     (0..size).map(|i| { size - i }).collect()
 }
 
+#[inline(always)]
 pub fn sorted_vec_u64(size: u64) -> Vec<u64> {
     (0..size).map(|i| { i }).collect()
 }

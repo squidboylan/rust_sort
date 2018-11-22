@@ -38,5 +38,5 @@ fn quicksort_worst_case_1m(c: &mut Criterion) {
 criterion_group!{
     name = benches;
     config = Criterion::default().sample_size(10);
-    targets = quicksort_worst_case_10, quicksort_worst_case_100, quicksort_worst_case_1k, quicksort_worst_case_10k, quicksort_worst_case_100k, quicksort_worst_case_1m}
+    targets = quicksort_worst_case_10, quicksort_worst_case_100, quicksort_worst_case_1k, quicksort_worst_case_10k, quicksort_worst_case_100k}
 criterion_main!(benches);
