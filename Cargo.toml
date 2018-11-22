@@ -32,6 +32,18 @@ name = "quick"
 harness = false
 
 [[bench]]
+name = "quick_2T"
+harness = false
+
+[[bench]]
+name = "quick_4T"
+harness = false
+
+[[bench]]
+name = "quick_8T"
+harness = false
+
+[[bench]]
 name = "quick_worst_case"
 harness = false
 
