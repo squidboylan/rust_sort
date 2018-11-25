@@ -76,15 +76,14 @@ pub fn bubble_sort<T: PartialOrd>(vals: &mut [T]) {
 }
 
 // basic Hoare partition without optimization
-pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
-    let pivot = vals[0];
+pub fn partition<T: PartialOrd>(vals: &mut [T]) -> usize {
     let mut i = 1;
     let mut j = vals.len() - 1;
     loop {
-        while i < vals.len() && vals[i] < pivot {
+        while i < vals.len() && vals[i] < vals[0] {
             i += 1;
         }
-        while vals[j] >= pivot {
+        while vals[j] >= vals[0] {
             if j == 0 {
                 break;
             }
@@ -103,7 +102,7 @@ pub fn partition<T: PartialOrd + Copy>(vals: &mut [T]) -> usize {
 }
 
 // Quicksort that uses basic Hoare partitioning
-pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
+pub fn quicksort<T: PartialOrd>(vals: &mut [T]) {
     if vals.len() > 1 {
         let pivot = partition(vals);
         // Split vals into two arrays, left contains [0, pivot), the contains (pivot, len)
@@ -116,7 +115,7 @@ pub fn quicksort<T: PartialOrd + Copy>(vals: &mut [T]) {
 }
 
 // Multithreaded quicksort that uses basic Hoare partitioning
-pub fn quicksort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
+pub fn quicksort_multithreaded<T: PartialOrd + Send>(vals: &mut [T], depth: usize) {
     if vals.len() > 1 {
         let pivot = partition(vals);
         // Split vals into two arrays, left contains [0, pivot), the contains (pivot, len)
@@ -301,6 +300,10 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
         quicksort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
+
+        let mut vals = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+        quicksort(&mut vals);
+        assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         quicksort(&mut vals);
