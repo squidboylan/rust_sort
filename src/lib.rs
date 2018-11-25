@@ -140,7 +140,7 @@ pub fn quicksort_multithreaded<T: PartialOrd + Send>(vals: &mut [T], depth: usiz
     }
 }
 
-pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
+pub fn merge_sort<T: PartialOrd + Clone>(vals: &mut [T]) {
     if vals.len() > 1 {
         let mut left;
         let mut right;
@@ -156,28 +156,28 @@ pub fn merge_sort<T: PartialOrd + Copy>(vals: &mut [T]) {
     }
 }
 
-pub fn merge<T: PartialOrd + Copy>(vals: &mut [T], left: &mut [T], right: &mut [T]) {
+pub fn merge<T: PartialOrd + Clone>(vals: &mut [T], left: &mut [T], right: &mut [T]) {
     let mut x = 0;
     let mut y = 0;
     let mut i = 0;
     while x < left.len() && y < right.len() {
         if left[x] <= right[y] {
-            vals[i] = left[x];
+            vals[i] = left[x].clone();
             x += 1;
             i += 1;
         } else if left[x] > right[y] {
-            vals[i] = right[y];
+            vals[i] = right[y].clone();
             y += 1;
             i += 1;
         }
     }
     while x < left.len() {
-        vals[i] = left[x];
+        vals[i] = left[x].clone();
         x += 1;
         i += 1;
     }
     while y < right.len() {
-        vals[i] = right[y];
+        vals[i] = right[y].clone();
         y += 1;
         i += 1;
     }
