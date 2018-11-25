@@ -222,7 +222,7 @@ mod tests {
     use super::*;
 
     // Test a sorting function that takes an array as an argument
-    fn test_function(f: fn(&mut [u64])) {
+    fn test_function_rand(f: fn(&mut [u64])) {
         for i in 0..1024 {
             let mut numbers = rand_vec_u64(i);
             let mut sorted = numbers.clone();
@@ -232,12 +232,58 @@ mod tests {
         }
     }
 
+    fn test_function_sorted(f: fn(&mut [u64])) {
+        for i in 0..1024 {
+            let mut numbers = sorted_vec_u64(i);
+            let mut sorted = numbers.clone();
+            sorted.sort_unstable();
+            f(numbers.as_mut_slice());
+            assert_eq!(numbers, sorted);
+        }
+    }
+
+    fn test_function_reverse_sorted(f: fn(&mut [u64])) {
+        for i in 0..1024 {
+            let mut numbers = reverse_sorted_vec_u64(i);
+            let mut sorted = numbers.clone();
+            sorted.sort_unstable();
+            f(numbers.as_mut_slice());
+            assert_eq!(numbers, sorted);
+        }
+    }
+
     // Test a sorting function that takes an array and depth of multithreading
     // as arguments
-    fn test_function_mt(f: fn(&mut [u64], usize)) {
+    fn test_function_rand_mt(f: fn(&mut [u64], usize)) {
         for i in 0..1024 {
             for depth in 0..3 {
                 let mut numbers = rand_vec_u64(i);
+                let mut sorted = numbers.clone();
+                sorted.sort_unstable();
+
+                f(numbers.as_mut_slice(), depth);
+                assert_eq!(numbers, sorted);
+            }
+        }
+    }
+
+    fn test_function_sorted_mt(f: fn(&mut [u64], usize)) {
+        for i in 0..1024 {
+            for depth in 0..3 {
+                let mut numbers = sorted_vec_u64(i);
+                let mut sorted = numbers.clone();
+                sorted.sort_unstable();
+
+                f(numbers.as_mut_slice(), depth);
+                assert_eq!(numbers, sorted);
+            }
+        }
+    }
+
+    fn test_function_reverse_sorted_mt(f: fn(&mut [u64], usize)) {
+        for i in 0..1024 {
+            for depth in 0..3 {
+                let mut numbers = reverse_sorted_vec_u64(i);
                 let mut sorted = numbers.clone();
                 sorted.sort_unstable();
 
@@ -252,7 +298,9 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         insertion_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-        test_function(insertion_sort);
+        test_function_rand(insertion_sort);
+        test_function_sorted(insertion_sort);
+        test_function_reverse_sorted(insertion_sort);
     }
 
     #[test]
@@ -260,7 +308,9 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         bubble_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-        test_function(bubble_sort);
+        test_function_rand(bubble_sort);
+        test_function_sorted(bubble_sort);
+        test_function_reverse_sorted(bubble_sort);
     }
 
     #[test]
@@ -272,7 +322,9 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-        test_function(merge_sort);
+        test_function_rand(merge_sort);
+        test_function_sorted(merge_sort);
+        test_function_reverse_sorted(merge_sort);
     }
 
     #[test]
@@ -284,7 +336,9 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3];
         merge_sort_multithreaded(&mut vals, 3);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7]);
-        test_function_mt(merge_sort_multithreaded);
+        test_function_rand_mt(merge_sort_multithreaded);
+        test_function_sorted_mt(merge_sort_multithreaded);
+        test_function_reverse_sorted_mt(merge_sort_multithreaded);
     }
 
     #[test]
@@ -292,7 +346,9 @@ mod tests {
         let mut vals = [1, 5, 4, 6, 7, 2, 3, 8];
         selection_sort(&mut vals);
         assert_eq!(vals, [1, 2, 3, 4, 5, 6, 7, 8]);
-        test_function(selection_sort);
+        test_function_rand(selection_sort);
+        test_function_sorted(selection_sort);
+        test_function_reverse_sorted(selection_sort);
     }
 
     #[test]
@@ -318,7 +374,9 @@ mod tests {
         sorted.sort();
         quicksort(&mut vals);
         assert_eq!(vals, sorted);
-        test_function(quicksort);
+        test_function_rand(quicksort);
+        test_function_sorted(quicksort);
+        test_function_reverse_sorted(quicksort);
     }
 
     #[test]
@@ -340,6 +398,8 @@ mod tests {
         sorted.sort();
         quicksort_multithreaded(&mut vals, 3);
         assert_eq!(vals, sorted);
-        test_function_mt(quicksort_multithreaded);
+        test_function_rand_mt(quicksort_multithreaded);
+        test_function_sorted_mt(quicksort_multithreaded);
+        test_function_reverse_sorted_mt(quicksort_multithreaded);
     }
 }
