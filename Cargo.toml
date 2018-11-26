@@ -64,9 +64,97 @@ name = "merge_8T"
 harness = false
 
 [[bench]]
+name = "merge_worst"
+harness = false
+
+[[bench]]
+name = "merge_2T_worst"
+harness = false
+
+[[bench]]
+name = "merge_4T_worst"
+harness = false
+
+[[bench]]
+name = "merge_8T_worst"
+harness = false
+
+[[bench]]
+name = "merge_best"
+harness = false
+
+[[bench]]
+name = "merge_2T_best"
+harness = false
+
+[[bench]]
+name = "merge_4T_best"
+harness = false
+
+[[bench]]
+name = "merge_8T_best"
+harness = false
+
+[[bench]]
+name = "merge_big"
+harness = false
+
+[[bench]]
+name = "merge_2T_big"
+harness = false
+
+[[bench]]
+name = "merge_4T_big"
+harness = false
+
+[[bench]]
+name = "merge_8T_big"
+harness = false
+
+[[bench]]
+name = "merge_big_best"
+harness = false
+
+[[bench]]
+name = "merge_2T_big_best"
+harness = false
+
+[[bench]]
+name = "merge_4T_big_best"
+harness = false
+
+[[bench]]
+name = "merge_big_worst"
+harness = false
+
+[[bench]]
+name = "merge_2T_big_worst"
+harness = false
+
+[[bench]]
+name = "merge_4T_big_worst"
+harness = false
+
+[[bench]]
+name = "merge_8T_big_worst"
+harness = false
+
+[[bench]]
+name = "merge_8T_big_best"
+harness = false
+
+[[bench]]
 name = "rust_stable"
 harness = false
 
 [[bench]]
 name = "rust_unstable"
+harness = false
+
+[[bench]]
+name = "rust_stable_big"
+harness = false
+
+[[bench]]
+name = "rust_unstable_big"
 harness = false

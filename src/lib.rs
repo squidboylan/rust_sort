@@ -185,7 +185,7 @@ pub fn merge<T: PartialOrd + Clone>(vals: &mut [T], left: &mut [T], right: &mut 
 }
 
 
-pub fn merge_sort_multithreaded<T: PartialOrd + Copy + Send>(vals: &mut [T], depth: usize) {
+pub fn merge_sort_multithreaded<T: PartialOrd + Clone + Send>(vals: &mut [T], depth: usize) {
     if vals.len() == 1 {
         return;
     }
